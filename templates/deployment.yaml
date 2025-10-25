@@ -43,6 +43,7 @@ spec:
           configMap:
             name: postgres-init-script
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -141,3 +142,51 @@ spec:
             {{ toYaml .Values.students.env | nindent 12 }}
           resources:
             {{ toYaml .Values.students.resources | nindent 12 }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: library
+spec:
+  replicas: {{ .Values.library.replicaCount }}
+  selector:
+    matchLabels:
+      app: library
+  template:
+    metadata:
+      labels:
+        app: library
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:15-alpine
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h postgres -p 5432 -U postgres; do
+                echo "Waiting for PostgreSQL to be ready..."
+                sleep 2
+              done
+              echo "PostgreSQL is ready!"
+
+              until psql -h postgres -U postgres -d schooldb -c "SELECT 1 FROM information_schema.schemata WHERE schema_name = 'library';" | grep -q 1; do
+                echo "Waiting for library schema to be created..."
+                sleep 2
+              done
+              echo "library schema is ready!"
+          env:
+            - name: PGPASSWORD
+              value: "postgres123"
+      containers:
+        - name: library
+          image: "{{ .Values.library.image.repository }}:{{ .Values.library.image.tag }}"
+          imagePullPolicy: {{ .Values.library.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            {{ toYaml .Values.library.env | nindent 12 }}
+          resources:
+            {{ toYaml .Values.library.resources | nindent 12 }}

@@ -46,3 +46,19 @@ spec:
       name: http
   selector:
     app: students
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: library
+spec:
+  type: {{ .Values.library.service.type }}
+  ports:
+    - port: {{ .Values.library.service.port }}
+      targetPort: {{ .Values.library.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app: library
