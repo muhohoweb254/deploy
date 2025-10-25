@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  type: {{ .Values.postgres.service.type }}
+  ports:
+    - port: {{ .Values.postgres.service.port }}
+      targetPort: postgresql
+      protocol: TCP
+      name: postgresql
+  selector:
+    app: postgres
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+spec:
+  type: {{ .Values.keycloak.service.type }}
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 9000
+      targetPort: management
+      protocol: TCP
+      name: management
+  selector:
+    app: keycloak
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: students
+spec:
+  type: {{ .Values.students.service.type }}
+  ports:
+    - port: {{ .Values.students.service.port }}
+      targetPort: {{ .Values.students.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app: students

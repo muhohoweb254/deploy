@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-script
+data:
+  init.sql: |
+    -- Create keycloak schema
+    CREATE SCHEMA IF NOT EXISTS keycloak;
+    CREATE SCHEMA IF NOT EXISTS students;
+    CREATE SCHEMA IF NOT EXISTS courses;
+    CREATE SCHEMA IF NOT EXISTS library;
+    CREATE SCHEMA IF NOT EXISTS exam;
+
+    -- Grant permissions
+    GRANT ALL PRIVILEGES ON SCHEMA keycloak TO postgres;
+    GRANT ALL PRIVILEGES ON SCHEMA students TO postgres;
+    GRANT ALL PRIVILEGES ON SCHEMA courses TO postgres;
+    GRANT ALL PRIVILEGES ON SCHEMA exam TO postgres;
