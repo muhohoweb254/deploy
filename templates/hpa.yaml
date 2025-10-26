@@ -1,32 +1,163 @@
-{{/*{{- if .Values.autoscaling.enabled }}*/}}
+# Students HPA
+{{- if .Values.students.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: students-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: students
+  minReplicas: {{ .Values.students.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.students.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.students.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.students.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.students.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.students.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}
+
+---
+# Library HPA
+{{- if .Values.library.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: library-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: library
+  minReplicas: {{ .Values.library.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.library.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.library.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.library.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.library.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.library.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}
+
+{{/*---*/}}
+{{/*# API Gateway HPA*/}}
+{{/*{{- if .Values.apigateway.autoscaling.enabled }}*/}}
 {{/*apiVersion: autoscaling/v2*/}}
 {{/*kind: HorizontalPodAutoscaler*/}}
 {{/*metadata:*/}}
-{{/*  name: {{ include "kubernetes.fullname" . }}*/}}
-{{/*  labels:*/}}
-{{/*    {{- include "kubernetes.labels" . | nindent 4 }}*/}}
+{{/*  name: apigateway-hpa*/}}
 {{/*spec:*/}}
 {{/*  scaleTargetRef:*/}}
 {{/*    apiVersion: apps/v1*/}}
 {{/*    kind: Deployment*/}}
-{{/*    name: {{ include "kubernetes.fullname" . }}*/}}
-{{/*  minReplicas: {{ .Values.autoscaling.minReplicas }}*/}}
-{{/*  maxReplicas: {{ .Values.autoscaling.maxReplicas }}*/}}
+{{/*    name: apigateway*/}}
+{{/*  minReplicas: {{ .Values.apigateway.autoscaling.minReplicas }}*/}}
+{{/*  maxReplicas: {{ .Values.apigateway.autoscaling.maxReplicas }}*/}}
 {{/*  metrics:*/}}
-{{/*    {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}*/}}
+{{/*    {{- if .Values.apigateway.autoscaling.targetCPUUtilizationPercentage }}*/}}
 {{/*    - type: Resource*/}}
 {{/*      resource:*/}}
 {{/*        name: cpu*/}}
 {{/*        target:*/}}
 {{/*          type: Utilization*/}}
-{{/*          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}*/}}
+{{/*          averageUtilization: {{ .Values.apigateway.autoscaling.targetCPUUtilizationPercentage }}*/}}
 {{/*    {{- end }}*/}}
-{{/*    {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}*/}}
+{{/*    {{- if .Values.apigateway.autoscaling.targetMemoryUtilizationPercentage }}*/}}
 {{/*    - type: Resource*/}}
 {{/*      resource:*/}}
 {{/*        name: memory*/}}
 {{/*        target:*/}}
 {{/*          type: Utilization*/}}
-{{/*          averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}*/}}
+{{/*          averageUtilization: {{ .Values.apigateway.autoscaling.targetMemoryUtilizationPercentage }}*/}}
+{{/*    {{- end }}*/}}
+{{/*{{- end }}*/}}
+
+{{/*---*/}}
+{{/*# Course HPA*/}}
+{{/*{{- if .Values.course.autoscaling.enabled }}*/}}
+{{/*apiVersion: autoscaling/v2*/}}
+{{/*kind: HorizontalPodAutoscaler*/}}
+{{/*metadata:*/}}
+{{/*  name: course-hpa*/}}
+{{/*spec:*/}}
+{{/*  scaleTargetRef:*/}}
+{{/*    apiVersion: apps/v1*/}}
+{{/*    kind: Deployment*/}}
+{{/*    name: course*/}}
+{{/*  minReplicas: {{ .Values.course.autoscaling.minReplicas }}*/}}
+{{/*  maxReplicas: {{ .Values.course.autoscaling.maxReplicas }}*/}}
+{{/*  metrics:*/}}
+{{/*    {{- if .Values.course.autoscaling.targetCPUUtilizationPercentage }}*/}}
+{{/*    - type: Resource*/}}
+{{/*      resource:*/}}
+{{/*        name: cpu*/}}
+{{/*        target:*/}}
+{{/*          type: Utilization*/}}
+{{/*          averageUtilization: {{ .Values.course.autoscaling.targetCPUUtilizationPercentage }}*/}}
+{{/*    {{- end }}*/}}
+{{/*    {{- if .Values.course.autoscaling.targetMemoryUtilizationPercentage }}*/}}
+{{/*    - type: Resource*/}}
+{{/*      resource:*/}}
+{{/*        name: memory*/}}
+{{/*        target:*/}}
+{{/*          type: Utilization*/}}
+{{/*          averageUtilization: {{ .Values.course.autoscaling.targetMemoryUtilizationPercentage }}*/}}
+{{/*    {{- end }}*/}}
+{{/*{{- end }}*/}}
+
+{{/*---*/}}
+{{/*# Exam HPA*/}}
+{{/*{{- if .Values.exam.autoscaling.enabled }}*/}}
+{{/*apiVersion: autoscaling/v2*/}}
+{{/*kind: HorizontalPodAutoscaler*/}}
+{{/*metadata:*/}}
+{{/*  name: exam-hpa*/}}
+{{/*spec:*/}}
+{{/*  scaleTargetRef:*/}}
+{{/*    apiVersion: apps/v1*/}}
+{{/*    kind: Deployment*/}}
+{{/*    name: exam*/}}
+{{/*  minReplicas: {{ .Values.exam.autoscaling.minReplicas }}*/}}
+{{/*  maxReplicas: {{ .Values.exam.autoscaling.maxReplicas }}*/}}
+{{/*  metrics:*/}}
+{{/*    {{- if .Values.exam.autoscaling.targetCPUUtilizationPercentage }}*/}}
+{{/*    - type: Resource*/}}
+{{/*      resource:*/}}
+{{/*        name: cpu*/}}
+{{/*        target:*/}}
+{{/*          type: Utilization*/}}
+{{/*          averageUtilization: {{ .Values.exam.autoscaling.targetCPUUtilizationPercentage }}*/}}
+{{/*    {{- end }}*/}}
+{{/*    {{- if .Values.exam.autoscaling.targetMemoryUtilizationPercentage }}*/}}
+{{/*    - type: Resource*/}}
+{{/*      resource:*/}}
+{{/*        name: memory*/}}
+{{/*        target:*/}}
+{{/*          type: Utilization*/}}
+{{/*          averageUtilization: {{ .Values.exam.autoscaling.targetMemoryUtilizationPercentage }}*/}}
 {{/*    {{- end }}*/}}
 {{/*{{- end }}*/}}
