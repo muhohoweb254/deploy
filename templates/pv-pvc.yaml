@@ -1,0 +1,30 @@
+# ===================================================================
+# templates/postgres-storage.yaml
+# ===================================================================
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.postgres.pv.name }}
+spec:
+  capacity:
+    storage: {{ .Values.postgres.pv.storage }}
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.postgres.pv.storageClass }}
+  hostPath:
+    path: {{ .Values.postgres.pv.hostPath }}
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.postgres.pvc.name }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.postgres.pvc.storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.postgres.pvc.storage }}

@@ -24,6 +24,9 @@ spec:
           volumeMounts:
             - name: init-script
               mountPath: /docker-entrypoint-initdb.d
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
           readinessProbe:
             exec:
               command:
@@ -42,6 +45,9 @@ spec:
         - name: init-script
           configMap:
             name: postgres-init-script
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.postgres.pvc.name }}
 ---
 
 apiVersion: apps/v1
@@ -190,3 +196,43 @@ spec:
             {{ toYaml .Values.library.env | nindent 12 }}
           resources:
             {{ toYaml .Values.library.resources | nindent 12 }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigateway
+spec:
+  replicas: {{ .Values.apigateway.replicaCount }}
+  selector:
+    matchLabels:
+      app: apigateway
+  template:
+    metadata:
+      labels:
+        app: apigateway
+    spec:
+      initContainers:
+        - name: wait-for-keycloak
+          image: curlimages/curl:8.5.0
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for Keycloak to be ready..."
+              until curl -sf http://keycloak:8080/keycloak/auth/realms/school/.well-known/openid-configuration > /dev/null; do
+                echo "Keycloak not ready yet..."
+                sleep 5
+              done
+              echo "Keycloak is ready!"
+      containers:
+        - name: apigateway
+          image: "{{ .Values.apigateway.image.repository }}:{{ .Values.apigateway.image.tag }}"
+          imagePullPolicy: {{ .Values.apigateway.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            {{ toYaml .Values.apigateway.env | nindent 12 }}
+          resources:
+            {{ toYaml .Values.apigateway.resources | nindent 12 }}
