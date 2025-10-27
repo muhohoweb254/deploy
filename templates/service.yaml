@@ -28,6 +28,7 @@ spec:
       targetPort: management
       protocol: TCP
       name: management
+
   selector:
     app: keycloak
 
@@ -78,3 +79,44 @@ spec:
       name: http
   selector:
     app: apigateway
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: course
+spec:
+  type: {{ .Values.course.service.type }}
+  ports:
+    - port: {{ .Values.course.service.port }}
+      targetPort: {{ .Values.course.service.port }}
+      protocol: TCP
+      name: http
+
+    - port: 9090
+      targetPort: 9090
+      name: grpc
+      protocol: TCP
+
+  selector:
+    app: course
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: {{ .Values.namespace }}
+spec:
+  type: {{ .Values.rabbitmq.service.type }}
+  ports:
+    - name: amqp
+      port: 5672
+      targetPort: 5672
+      protocol: TCP
+    - name: management
+      port: 15672
+      targetPort: 15672
+      protocol: TCP
+  selector:
+    app: rabbitmq

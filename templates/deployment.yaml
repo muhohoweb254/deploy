@@ -143,7 +143,7 @@ spec:
             - name: http
               containerPort: 8080
             - name: management
-              containerPort: 9000
+              containerPort: 9090
           env:
             {{ toYaml .Values.students.env | nindent 12 }}
           resources:
@@ -192,6 +192,9 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+            - name: management
+              containerPort: 9090
+              protocol: TCP
           env:
             {{ toYaml .Values.library.env | nindent 12 }}
           resources:
@@ -236,3 +239,122 @@ spec:
             {{ toYaml .Values.apigateway.env | nindent 12 }}
           resources:
             {{ toYaml .Values.apigateway.resources | nindent 12 }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: course
+spec:
+  replicas: {{ .Values.course.replicaCount }}
+  selector:
+    matchLabels:
+      app: course
+  template:
+    metadata:
+      labels:
+        app: course
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:15-alpine
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h postgres -p 5432 -U postgres; do
+                echo "Waiting for PostgreSQL to be ready..."
+                sleep 2
+              done
+              echo "PostgreSQL is ready!"
+
+              until psql -h postgres -U postgres -d schooldb -c "SELECT 1 FROM information_schema.schemata WHERE schema_name = 'courses';" | grep -q 1; do
+                echo "Waiting for courses schema to be created..."
+                sleep 2
+              done
+              echo "courses schema is ready!"
+          env:
+            - name: PGPASSWORD
+              value: "postgres123"
+
+      containers:
+        - name: course
+          image: "{{ .Values.course.image.repository }}:{{ .Values.course.image.tag }}"
+          imagePullPolicy: {{ .Values.course.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: management
+              containerPort: 9090
+              protocol: TCP
+
+          env:
+            {{ toYaml .Values.course.env | nindent 12 }}
+          resources:
+            {{ toYaml .Values.course.resources | nindent 12 }}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.rabbitmq.replicaCount }}
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      hostname: rabbitmq
+      containers:
+        - name: rabbitmq
+          image: "{{ .Values.rabbitmq.image.repository }}:{{ .Values.rabbitmq.image.tag }}"
+          imagePullPolicy: {{ .Values.rabbitmq.image.pullPolicy }}
+          ports:
+            - name: amqp
+              containerPort: 5672
+              protocol: TCP
+            - name: management
+              containerPort: 15672
+              protocol: TCP
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: {{ .Values.rabbitmq.auth.username | quote }}
+            - name: RABBITMQ_DEFAULT_PASS
+              value: {{ .Values.rabbitmq.auth.password | quote }}
+            - name: RABBITMQ_DEFAULT_VHOST
+              value: {{ .Values.rabbitmq.auth.vhost | quote }}
+          volumeMounts:
+            - name: rabbitmq-data
+              mountPath: /var/lib/rabbitmq
+          livenessProbe:
+            exec:
+              command:
+                - rabbitmq-diagnostics
+                - -q
+                - ping
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          readinessProbe:
+            exec:
+              command:
+                - rabbitmq-diagnostics
+                - -q
+                - ping
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.rabbitmq.resources | nindent 12 }}
+      volumes:
+        - name: rabbitmq-data
+          persistentVolumeClaim:
+            claimName: rabbitmq-pvc

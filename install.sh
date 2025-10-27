@@ -1,10 +1,23 @@
 #!/bin/bash
 
-# Simple Helm install script
-helm uninstall school-app -n school-app 2>/dev/null
-echo "Uninstalled previous release (if existed)"
+set -e
 
-helm install school-app ./kubernetes -n school-app --create-namespace
-echo "Installed school-app"
+NAMESPACE="school-app"
+RELEASE_NAME="school-app"
+CHART_PATH="./kubernetes"
 
-kubectl get pods -n school-app
+echo "📦 Upgrading/Installing $RELEASE_NAME..."
+helm upgrade --install $RELEASE_NAME $CHART_PATH \
+    -n $NAMESPACE \
+    --create-namespace \
+    --wait \
+    --timeout 5m
+
+echo "✅ Deployment complete!"
+echo ""
+echo "📊 Pod Status:"
+kubectl get pods -n $NAMESPACE
+
+echo ""
+echo "Storage Status:"
+kubectl get pv,pvc -n $NAMESPACE
