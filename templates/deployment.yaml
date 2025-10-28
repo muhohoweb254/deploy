@@ -84,7 +84,7 @@ spec:
               echo "Keycloak schema is ready!"
           env:
             - name: PGPASSWORD
-              value: "postgres123"
+              value: {{.Values.postgres.postgresDbPass}}
       containers:
         - name: keycloak
           image: "{{ .Values.keycloak.image.repository }}:{{ .Values.keycloak.image.tag }}"
@@ -134,7 +134,7 @@ spec:
               echo "Keycloak schema is ready!"
           env:
             - name: PGPASSWORD
-              value: "postgres123"
+              value: {{.Values.postgres.postgresDbPass}}
       containers:
         - name: students
           image: "{{ .Values.students.image.repository }}:{{ .Values.students.image.tag }}"
@@ -184,7 +184,7 @@ spec:
               echo "library schema is ready!"
           env:
             - name: PGPASSWORD
-              value: "postgres123"
+              value: {{.Values.postgres.postgresDbPass}}
       containers:
         - name: library
           image: "{{ .Values.library.image.repository }}:{{ .Values.library.image.tag }}"
@@ -275,7 +275,7 @@ spec:
               echo "courses schema is ready!"
           env:
             - name: PGPASSWORD
-              value: "postgres123"
+              value: {{.Values.postgres.postgresDbPass}}
 
       containers:
         - name: course
