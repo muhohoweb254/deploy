@@ -49,7 +49,6 @@ spec:
           persistentVolumeClaim:
             claimName: {{ .Values.postgres.pvc.name }}
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -98,7 +97,6 @@ spec:
             {{ toYaml .Values.keycloak.env | nindent 12 }}
           resources:
             {{ toYaml .Values.keycloak.resources | nindent 12 }}
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -358,3 +356,147 @@ spec:
         - name: rabbitmq-data
           persistentVolumeClaim:
             claimName: rabbitmq-pvc
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exam
+spec:
+  replicas: {{ .Values.exam.replicaCount }}
+  selector:
+    matchLabels:
+      app: exam
+  template:
+    metadata:
+      labels:
+        app: exam
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:15-alpine
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h postgres -p 5432 -U postgres; do
+                echo "Waiting for PostgreSQL to be ready..."
+                sleep 2
+              done
+              echo "PostgreSQL is ready!"
+
+              until psql -h postgres -U postgres -d schooldb -c "SELECT 1 FROM information_schema.schemata WHERE schema_name = 'exam';" | grep -q 1; do
+                echo "Waiting for exam schema to be created..."
+                sleep 2
+              done
+              echo "exam schema is ready!"
+          env:
+            - name: PGPASSWORD
+              value: {{.Values.postgres.postgresDbPass}}
+
+      containers:
+        - name: exam
+          image: "{{ .Values.exam.image.repository }}:{{ .Values.exam.image.tag }}"
+          imagePullPolicy: {{ .Values.exam.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: management
+              containerPort: 9090
+              protocol: TCP
+
+          env:
+            {{ toYaml .Values.exam.env | nindent 12 }}
+          resources:
+            {{ toYaml .Values.exam.resources | nindent 12 }}
+---
+---
+{{/*apiVersion: apps/v1*/}}
+{{/*kind: Deployment*/}}
+{{/*metadata:*/}}
+{{/*  name: springai*/}}
+{{/*spec:*/}}
+{{/*  replicas: {{ .Values.springai.replicaCount }}*/}}
+{{/*  selector:*/}}
+{{/*    matchLabels:*/}}
+{{/*      app: springai*/}}
+{{/*  template:*/}}
+{{/*    metadata:*/}}
+{{/*      labels:*/}}
+{{/*        app: springai*/}}
+{{/*    spec:*/}}
+{{/*      initContainers:*/}}
+{{/*        - name: wait-for-postgres*/}}
+{{/*          image: postgres:15-alpine*/}}
+{{/*          command:*/}}
+{{/*            - sh*/}}
+{{/*            - -c*/}}
+{{/*            - |*/}}
+{{/*              until pg_isready -h postgres -p 5432 -U postgres; do*/}}
+{{/*                echo "Waiting for PostgreSQL to be ready..."*/}}
+{{/*                sleep 2*/}}
+{{/*              done*/}}
+{{/*              echo "PostgreSQL is ready!"*/}}
+
+{{/*        - name: wait-for-ollama*/}}
+{{/*          image: curlimages/curl:8.5.0*/}}
+{{/*          command:*/}}
+{{/*            - sh*/}}
+{{/*            - -c*/}}
+{{/*            - |*/}}
+{{/*              echo "Waiting for Ollama to be ready..."*/}}
+{{/*              until curl -sf http://ollama:11434/api/tags > /dev/null; do*/}}
+{{/*                echo "Ollama not ready yet..."*/}}
+{{/*                sleep 5*/}}
+{{/*              done*/}}
+{{/*              echo "Ollama is ready!"*/}}
+{{/*          env:*/}}
+{{/*            - name: PGPASSWORD*/}}
+{{/*              value: {{.Values.postgres.postgresDbPass}}*/}}
+
+{{/*      containers:*/}}
+{{/*        - name: springai*/}}
+{{/*          image: "{{ .Values.springai.image.repository }}:{{ .Values.springai.image.tag }}"*/}}
+{{/*          imagePullPolicy: {{ .Values.springai.image.pullPolicy }}*/}}
+{{/*          ports:*/}}
+{{/*            - name: http*/}}
+{{/*              containerPort: 8080*/}}
+
+{{/*          env:*/}}
+{{/*            {{ toYaml .Values.springai.env | nindent 12 }}*/}}
+{{/*          resources:*/}}
+{{/*            {{ toYaml .Values.springai.resources | nindent 12 }}*/}}
+
+---
+{{/*apiVersion: apps/v1*/}}
+{{/*kind: Deployment*/}}
+{{/*metadata:*/}}
+{{/*  name: ollama*/}}
+{{/*  namespace: {{ .Values.namespace }}*/}}
+{{/*spec:*/}}
+{{/*  replicas: {{ .Values.ollama.replicaCount }}*/}}
+{{/*  selector:*/}}
+{{/*    matchLabels:*/}}
+{{/*      app: ollama*/}}
+{{/*  template:*/}}
+{{/*    metadata:*/}}
+{{/*      labels:*/}}
+{{/*        app: ollama*/}}
+{{/*    spec:*/}}
+{{/*      containers:*/}}
+{{/*        - name: ollama*/}}
+{{/*          image: "{{ .Values.ollama.image.repository }}:{{ .Values.ollama.image.tag }}"*/}}
+{{/*          imagePullPolicy: {{ .Values.ollama.image.pullPolicy }}*/}}
+{{/*          ports:*/}}
+{{/*            - name: http*/}}
+{{/*              containerPort: 11434*/}}
+{{/*              protocol: TCP*/}}
+{{/*          volumeMounts:*/}}
+{{/*            - name: ollama-data*/}}
+{{/*              mountPath: /root/.ollama*/}}
+{{/*          resources:*/}}
+{{/*            {{- toYaml .Values.ollama.resources | nindent 12 }}*/}}
+{{/*      volumes:*/}}
+{{/*        - name: ollama-data*/}}
+{{/*          emptyDir:*/}}
+{{/*            sizeLimit: 10Gi  # Optional: limit size*/}}

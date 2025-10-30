@@ -12,7 +12,542 @@ data:
     CREATE SCHEMA IF NOT EXISTS exam;
 
     -- Grant permissions
-    GRANT ALL PRIVILEGES ON SCHEMA keycloak TO postgres;
-    GRANT ALL PRIVILEGES ON SCHEMA students TO postgres;
-    GRANT ALL PRIVILEGES ON SCHEMA courses TO postgres;
-    GRANT ALL PRIVILEGES ON SCHEMA exam TO postgres;
+    GRANT
+    ALL
+    PRIVILEGES
+    ON
+    SCHEMA
+    keycloak TO postgres;
+    GRANT ALL PRIVILEGES ON SCHEMA
+    students TO postgres;
+    GRANT ALL PRIVILEGES ON SCHEMA
+    courses TO postgres;
+    GRANT ALL PRIVILEGES ON SCHEMA
+    exam TO postgres;
+
+    -- Create departments table in courses schema
+    CREATE TABLE IF NOT EXISTS courses.departments
+    (
+        id
+        BIGSERIAL
+        PRIMARY
+        KEY,
+        name
+        VARCHAR
+    (
+        255
+    ) NOT NULL
+        );
+
+    -- Create courses table in courses schema
+    CREATE TABLE IF NOT EXISTS courses.courses
+    (
+        id
+        BIGSERIAL
+        PRIMARY
+        KEY,
+        name
+        VARCHAR
+    (
+        255
+    ) NOT NULL,
+        department_id BIGINT NOT NULL,
+        FOREIGN KEY
+    (
+        department_id
+    ) REFERENCES courses.departments
+    (
+        id
+    )
+        );
+
+    -- Insert 20 university departments
+    INSERT INTO courses.departments (name)
+    VALUES ('Department of Computer Science'),
+           ('Department of Electrical and Computer Engineering'),
+           ('Department of Mechanical Engineering'),
+           ('Department of Civil and Environmental Engineering'),
+           ('Department of Chemical Engineering'),
+           ('Department of Mathematics'),
+           ('Department of Physics'),
+           ('Department of Chemistry'),
+           ('Department of Biological Sciences'),
+           ('Department of Economics'),
+           ('Department of Business Administration'),
+           ('Department of English'),
+           ('Department of History'),
+           ('Department of Psychology'),
+           ('Department of Sociology'),
+           ('Department of Political Science'),
+           ('Department of Philosophy'),
+           ('Department of Modern Languages'),
+           ('Department of Fine Arts'),
+           ('Department of Music') ON CONFLICT DO NOTHING;
+
+    -- Insert courses for each department
+
+    -- Computer Science (department_id = 1)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Introduction to Programming', 1),
+           ('Data Structures and Algorithms', 1),
+           ('Database Systems', 1),
+           ('Operating Systems', 1),
+           ('Computer Networks', 1),
+           ('Software Engineering', 1),
+           ('Artificial Intelligence', 1),
+           ('Machine Learning', 1),
+           ('Computer Graphics', 1),
+           ('Cybersecurity', 1) ON CONFLICT DO NOTHING;
+
+    -- Electrical and Computer Engineering (department_id = 2)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Circuit Analysis', 2),
+           ('Digital Logic Design', 2),
+           ('Signals and Systems', 2),
+           ('Electromagnetic Fields', 2),
+           ('Control Systems', 2),
+           ('VLSI Design', 2),
+           ('Power Systems', 2),
+           ('Communication Systems', 2),
+           ('Embedded Systems', 2),
+           ('Microprocessor Architecture', 2) ON CONFLICT DO NOTHING;
+
+    -- Mechanical Engineering (department_id = 3)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Engineering Mechanics', 3),
+           ('Thermodynamics', 3),
+           ('Fluid Mechanics', 3),
+           ('Heat Transfer', 3),
+           ('Machine Design', 3),
+           ('Manufacturing Processes', 3),
+           ('Mechanical Vibrations', 3),
+           ('Robotics', 3),
+           ('Finite Element Analysis', 3),
+           ('Automotive Engineering', 3) ON CONFLICT DO NOTHING;
+
+    -- Civil and Environmental Engineering (department_id = 4)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Structural Analysis', 4),
+           ('Geotechnical Engineering', 4),
+           ('Transportation Engineering', 4),
+           ('Water Resources Engineering', 4),
+           ('Environmental Engineering', 4),
+           ('Construction Management', 4),
+           ('Concrete Technology', 4),
+           ('Earthquake Engineering', 4),
+           ('Urban Planning', 4),
+           ('Sustainable Infrastructure', 4) ON CONFLICT DO NOTHING;
+
+    -- Chemical Engineering (department_id = 5)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Chemical Process Principles', 5),
+           ('Transport Phenomena', 5),
+           ('Chemical Reaction Engineering', 5),
+           ('Process Control', 5),
+           ('Separation Processes', 5),
+           ('Unit Operations', 5),
+           ('Polymer Engineering', 5),
+           ('Biochemical Engineering', 5),
+           ('Process Design', 5),
+           ('Petrochemical Engineering', 5) ON CONFLICT DO NOTHING;
+
+    -- Mathematics (department_id = 6)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Calculus I', 6),
+           ('Calculus II', 6),
+           ('Linear Algebra', 6),
+           ('Differential Equations', 6),
+           ('Real Analysis', 6),
+           ('Abstract Algebra', 6),
+           ('Probability Theory', 6),
+           ('Statistics', 6),
+           ('Numerical Analysis', 6),
+           ('Discrete Mathematics', 6) ON CONFLICT DO NOTHING;
+
+    -- Physics (department_id = 7)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Classical Mechanics', 7),
+           ('Electromagnetism', 7),
+           ('Quantum Mechanics', 7),
+           ('Thermodynamics and Statistical Mechanics', 7),
+           ('Optics', 7),
+           ('Nuclear Physics', 7),
+           ('Solid State Physics', 7),
+           ('Particle Physics', 7),
+           ('Astrophysics', 7),
+           ('Computational Physics', 7) ON CONFLICT DO NOTHING;
+
+    -- Chemistry (department_id = 8)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('General Chemistry', 8),
+           ('Organic Chemistry I', 8),
+           ('Organic Chemistry II', 8),
+           ('Inorganic Chemistry', 8),
+           ('Physical Chemistry', 8),
+           ('Analytical Chemistry', 8),
+           ('Biochemistry', 8),
+           ('Environmental Chemistry', 8),
+           ('Polymer Chemistry', 8),
+           ('Spectroscopy', 8) ON CONFLICT DO NOTHING;
+
+    -- Biological Sciences (department_id = 9)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('General Biology', 9),
+           ('Cell Biology', 9),
+           ('Genetics', 9),
+           ('Molecular Biology', 9),
+           ('Ecology', 9),
+           ('Evolution', 9),
+           ('Microbiology', 9),
+           ('Anatomy and Physiology', 9),
+           ('Biotechnology', 9),
+           ('Marine Biology', 9) ON CONFLICT DO NOTHING;
+
+    -- Economics (department_id = 10)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Principles of Microeconomics', 10),
+           ('Principles of Macroeconomics', 10),
+           ('Intermediate Microeconomics', 10),
+           ('Intermediate Macroeconomics', 10),
+           ('Econometrics', 10),
+           ('International Economics', 10),
+           ('Development Economics', 10),
+           ('Public Economics', 10),
+           ('Game Theory', 10),
+           ('Labor Economics', 10) ON CONFLICT DO NOTHING;
+
+    -- Business Administration (department_id = 11)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Introduction to Business', 11),
+           ('Financial Accounting', 11),
+           ('Managerial Accounting', 11),
+           ('Corporate Finance', 11),
+           ('Marketing Management', 11),
+           ('Operations Management', 11),
+           ('Human Resource Management', 11),
+           ('Strategic Management', 11),
+           ('Organizational Behavior', 11),
+           ('Business Analytics', 11) ON CONFLICT DO NOTHING;
+
+    -- English (department_id = 12)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Introduction to Literature', 12),
+           ('British Literature I', 12),
+           ('British Literature II', 12),
+           ('American Literature', 12),
+           ('Shakespeare', 12),
+           ('Creative Writing', 12),
+           ('Contemporary Fiction', 12),
+           ('Poetry Workshop', 12),
+           ('Literary Theory', 12),
+           ('Technical Writing', 12) ON CONFLICT DO NOTHING;
+
+    -- History (department_id = 13)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('World History I', 13),
+           ('World History II', 13),
+           ('American History', 13),
+           ('European History', 13),
+           ('Ancient Civilizations', 13),
+           ('Medieval History', 13),
+           ('Modern World History', 13),
+           ('African History', 13),
+           ('Asian History', 13),
+           ('History of Science', 13) ON CONFLICT DO NOTHING;
+
+    -- Psychology (department_id = 14)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Introduction to Psychology', 14),
+           ('Developmental Psychology', 14),
+           ('Social Psychology', 14),
+           ('Cognitive Psychology', 14),
+           ('Abnormal Psychology', 14),
+           ('Biological Psychology', 14),
+           ('Research Methods in Psychology', 14),
+           ('Clinical Psychology', 14),
+           ('Organizational Psychology', 14),
+           ('Neuroscience', 14) ON CONFLICT DO NOTHING;
+
+    -- Sociology (department_id = 15)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Introduction to Sociology', 15),
+           ('Social Theory', 15),
+           ('Research Methods in Sociology', 15),
+           ('Urban Sociology', 15),
+           ('Race and Ethnicity', 15),
+           ('Gender and Society', 15),
+           ('Social Inequality', 15),
+           ('Criminology', 15),
+           ('Sociology of Education', 15),
+           ('Globalization and Society', 15) ON CONFLICT DO NOTHING;
+
+    -- Political Science (department_id = 16)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Introduction to Political Science', 16),
+           ('Comparative Politics', 16),
+           ('International Relations', 16),
+           ('American Government', 16),
+           ('Political Theory', 16),
+           ('Public Policy', 16),
+           ('Constitutional Law', 16),
+           ('Political Economy', 16),
+           ('Conflict and Security Studies', 16),
+           ('Environmental Politics', 16) ON CONFLICT DO NOTHING;
+
+    -- Philosophy (department_id = 17)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Introduction to Philosophy', 17),
+           ('Ethics', 17),
+           ('Logic', 17),
+           ('Metaphysics', 17),
+           ('Epistemology', 17),
+           ('Ancient Philosophy', 17),
+           ('Modern Philosophy', 17),
+           ('Philosophy of Mind', 17),
+           ('Political Philosophy', 17),
+           ('Philosophy of Science', 17) ON CONFLICT DO NOTHING;
+
+    -- Modern Languages (department_id = 18)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Spanish I', 18),
+           ('Spanish II', 18),
+           ('French I', 18),
+           ('French II', 18),
+           ('German I', 18),
+           ('Chinese I', 18),
+           ('Arabic I', 18),
+           ('Linguistics', 18),
+           ('Translation Studies', 18),
+           ('Comparative Literature', 18) ON CONFLICT DO NOTHING;
+
+    -- Fine Arts (department_id = 19)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Drawing I', 19),
+           ('Painting', 19),
+           ('Sculpture', 19),
+           ('Digital Art', 19),
+           ('Photography', 19),
+           ('Art History I', 19),
+           ('Art History II', 19),
+           ('Graphic Design', 19),
+           ('Printmaking', 19),
+           ('Contemporary Art', 19) ON CONFLICT DO NOTHING;
+
+    -- Music (department_id = 20)
+    INSERT INTO courses.courses (name, department_id)
+    VALUES ('Music Theory I', 20),
+           ('Music Theory II', 20),
+           ('Music History', 20),
+           ('Ear Training', 20),
+           ('Piano Performance', 20),
+           ('Voice Performance', 20),
+           ('Orchestra', 20),
+           ('Jazz Ensemble', 20),
+           ('Music Composition', 20),
+           ('Music Production', 20) ON CONFLICT DO NOTHING;
+
+    -- Insert 30 books
+    INSERT INTO library.books (title, author, isbn, borrowed)
+    VALUES ('To Kill a Mockingbird', 'Harper Lee', '978-0-06-112008-4', false),
+           ('1984', 'George Orwell', '978-0-452-28423-4', false),
+           ('The Great Gatsby', 'F. Scott Fitzgerald', '978-0-7432-7356-5', false),
+           ('Pride and Prejudice', 'Jane Austen', '978-0-14-143951-8', true),
+           ('The Catcher in the Rye', 'J.D. Salinger', '978-0-316-76948-0', false),
+           ('The Hobbit', 'J.R.R. Tolkien', '978-0-547-92822-7', false),
+           ('Harry Potter and the Sorcerer''s Stone', 'J.K. Rowling', '978-0-439-70818-8', true),
+           ('The Lord of the Rings', 'J.R.R. Tolkien', '978-0-618-64561-5', false),
+           ('Animal Farm', 'George Orwell', '978-0-452-28424-1', false),
+           ('Brave New World', 'Aldous Huxley', '978-0-06-085052-4', false),
+           ('The Chronicles of Narnia', 'C.S. Lewis', '978-0-06-023481-4', true),
+           ('Lord of the Flies', 'William Golding', '978-0-399-50148-7', false),
+           ('Jane Eyre', 'Charlotte Brontë', '978-0-14-144114-6', false),
+           ('Wuthering Heights', 'Emily Brontë', '978-0-14-143955-6', false),
+           ('The Alchemist', 'Paulo Coelho', '978-0-06-112241-5', true),
+           ('The Little Prince', 'Antoine de Saint-Exupéry', '978-0-15-601219-7', false),
+           ('Moby-Dick', 'Herman Melville', '978-0-14-243724-7', false),
+           ('War and Peace', 'Leo Tolstoy', '978-0-14-303999-0', false),
+           ('Crime and Punishment', 'Fyodor Dostoevsky', '978-0-14-044913-0', false),
+           ('The Odyssey', 'Homer', '978-0-14-026886-7', true),
+           ('The Divine Comedy', 'Dante Alighieri', '978-0-14-044839-3', false),
+           ('One Hundred Years of Solitude', 'Gabriel García Márquez', '978-0-06-088328-7', false),
+           ('The Brothers Karamazov', 'Fyodor Dostoevsky', '978-0-374-52879-5', false),
+           ('Don Quixote', 'Miguel de Cervantes', '978-0-06-093434-4', false),
+           ('Catch-22', 'Joseph Heller', '978-0-684-83339-0', true),
+           ('The Picture of Dorian Gray', 'Oscar Wilde', '978-0-14-143957-0', false),
+           ('Frankenstein', 'Mary Shelley', '978-0-14-143947-1', false),
+           ('Dracula', 'Bram Stoker', '978-0-14-143984-6', false),
+           ('The Adventures of Sherlock Holmes', 'Arthur Conan Doyle', '978-0-14-143975-4', true),
+           ('Alice''s Adventures in Wonderland', 'Lewis Carroll', '978-0-14-143761-3', false) ON CONFLICT DO NOTHING;
+    Add this to your ConfigMap:
+    yamlapiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: postgres-init-script
+    data:
+      init.sql: |
+        -- Create schemas
+    CREATE SCHEMA IF NOT EXISTS keycloak;
+    CREATE SCHEMA IF NOT EXISTS students;
+    CREATE SCHEMA IF NOT EXISTS courses;
+    CREATE SCHEMA IF NOT EXISTS library;
+    CREATE SCHEMA IF NOT EXISTS exam;
+
+    -- Grant permissions
+    GRANT
+    ALL
+    PRIVILEGES
+    ON
+    SCHEMA
+    keycloak TO postgres;
+        GRANT ALL PRIVILEGES ON SCHEMA
+    students TO postgres;
+        GRANT ALL PRIVILEGES ON SCHEMA
+    courses TO postgres;
+        GRANT ALL PRIVILEGES ON SCHEMA
+    library TO postgres;
+        GRANT ALL PRIVILEGES ON SCHEMA
+    exam TO postgres;
+
+        -- [Previous departments and courses tables/inserts here...]
+
+
+    -- Insert 30 books
+    INSERT INTO library.books (title, author, isbn, borrowed)
+    VALUES ('To Kill a Mockingbird', 'Harper Lee', '978-0-06-112008-4', false),
+           ('1984', 'George Orwell', '978-0-452-28423-4', false),
+           ('The Great Gatsby', 'F. Scott Fitzgerald', '978-0-7432-7356-5', false),
+           ('Pride and Prejudice', 'Jane Austen', '978-0-14-143951-8', true),
+           ('The Catcher in the Rye', 'J.D. Salinger', '978-0-316-76948-0', false),
+           ('The Hobbit', 'J.R.R. Tolkien', '978-0-547-92822-7', false),
+           ('Harry Potter and the Sorcerer''s Stone', 'J.K. Rowling', '978-0-439-70818-8', true),
+           ('The Lord of the Rings', 'J.R.R. Tolkien', '978-0-618-64561-5', false),
+           ('Animal Farm', 'George Orwell', '978-0-452-28424-1', false),
+           ('Brave New World', 'Aldous Huxley', '978-0-06-085052-4', false),
+           ('The Chronicles of Narnia', 'C.S. Lewis', '978-0-06-023481-4', true),
+           ('Lord of the Flies', 'William Golding', '978-0-399-50148-7', false),
+           ('Jane Eyre', 'Charlotte Brontë', '978-0-14-144114-6', false),
+           ('Wuthering Heights', 'Emily Brontë', '978-0-14-143955-6', false),
+           ('The Alchemist', 'Paulo Coelho', '978-0-06-112241-5', true),
+           ('The Little Prince', 'Antoine de Saint-Exupéry', '978-0-15-601219-7', false),
+           ('Moby-Dick', 'Herman Melville', '978-0-14-243724-7', false),
+           ('War and Peace', 'Leo Tolstoy', '978-0-14-303999-0', false),
+           ('Crime and Punishment', 'Fyodor Dostoevsky', '978-0-14-044913-0', false),
+           ('The Odyssey', 'Homer', '978-0-14-026886-7', true),
+           ('The Divine Comedy', 'Dante Alighieri', '978-0-14-044839-3', false),
+           ('One Hundred Years of Solitude', 'Gabriel García Márquez', '978-0-06-088328-7', false),
+           ('The Brothers Karamazov', 'Fyodor Dostoevsky', '978-0-374-52879-5', false),
+           ('Don Quixote', 'Miguel de Cervantes', '978-0-06-093434-4', false),
+           ('Catch-22', 'Joseph Heller', '978-0-684-83339-0', true),
+           ('The Picture of Dorian Gray', 'Oscar Wilde', '978-0-14-143957-0', false),
+           ('Frankenstein', 'Mary Shelley', '978-0-14-143947-1', false),
+           ('Dracula', 'Bram Stoker', '978-0-14-143984-6', false),
+           ('The Adventures of Sherlock Holmes', 'Arthur Conan Doyle', '978-0-14-143975-4', true),
+           ('Alice''s Adventures in Wonderland', 'Lewis Carroll', '978-0-14-143761-3', false) ON CONFLICT DO NOTHING;
+
+
+    -- Insert 50 students with course allocations
+    INSERT INTO students.students (id, name, adm_no, course_id)
+    VALUES (gen_random_uuid(), 'James Anderson', 'ADM2024001', '1'),
+           (gen_random_uuid(), 'Emily Johnson', 'ADM2024002', '1'),
+           (gen_random_uuid(), 'Michael Chen', 'ADM2024003', '2'),
+           (gen_random_uuid(), 'Sarah Williams', 'ADM2024004', '3'),
+           (gen_random_uuid(), 'David Martinez', 'ADM2024005', '4'),
+           (gen_random_uuid(), 'Jessica Brown', 'ADM2024006', '5'),
+           (gen_random_uuid(), 'Daniel Garcia', 'ADM2024007', '6'),
+           (gen_random_uuid(), 'Emma Davis', 'ADM2024008', '7'),
+           (gen_random_uuid(), 'Christopher Rodriguez', 'ADM2024009', '8'),
+           (gen_random_uuid(), 'Olivia Wilson', 'ADM2024010', '9'),
+           (gen_random_uuid(), 'Matthew Moore', 'ADM2024011', '10'),
+           (gen_random_uuid(), 'Sophia Taylor', 'ADM2024012', '11'),
+           (gen_random_uuid(), 'Andrew Thomas', 'ADM2024013', '12'),
+           (gen_random_uuid(), 'Isabella Jackson', 'ADM2024014', '13'),
+           (gen_random_uuid(), 'Joshua White', 'ADM2024015', '14'),
+           (gen_random_uuid(), 'Ava Harris', 'ADM2024016', '15'),
+           (gen_random_uuid(), 'Ryan Martin', 'ADM2024017', '16'),
+           (gen_random_uuid(), 'Mia Thompson', 'ADM2024018', '17'),
+           (gen_random_uuid(), 'Ethan Lee', 'ADM2024019', '18'),
+           (gen_random_uuid(), 'Charlotte Walker', 'ADM2024020', '19'),
+           (gen_random_uuid(), 'Alexander Hall', 'ADM2024021', '20'),
+           (gen_random_uuid(), 'Amelia Allen', 'ADM2024022', '1'),
+           (gen_random_uuid(), 'Benjamin Young', 'ADM2024023', '2'),
+           (gen_random_uuid(), 'Harper King', 'ADM2024024', '3'),
+           (gen_random_uuid(), 'William Wright', 'ADM2024025', '4'),
+           (gen_random_uuid(), 'Evelyn Lopez', 'ADM2024026', '5'),
+           (gen_random_uuid(), 'Lucas Hill', 'ADM2024027', '6'),
+           (gen_random_uuid(), 'Abigail Scott', 'ADM2024028', '7'),
+           (gen_random_uuid(), 'Henry Green', 'ADM2024029', '8'),
+           (gen_random_uuid(), 'Emily Adams', 'ADM2024030', '9'),
+           (gen_random_uuid(), 'Sebastian Baker', 'ADM2024031', '10'),
+           (gen_random_uuid(), 'Elizabeth Nelson', 'ADM2024032', '11'),
+           (gen_random_uuid(), 'Jack Carter', 'ADM2024033', '12'),
+           (gen_random_uuid(), 'Sofia Mitchell', 'ADM2024034', '13'),
+           (gen_random_uuid(), 'Owen Perez', 'ADM2024035', '14'),
+           (gen_random_uuid(), 'Avery Roberts', 'ADM2024036', '15'),
+           (gen_random_uuid(), 'Liam Turner', 'ADM2024037', '16'),
+           (gen_random_uuid(), 'Ella Phillips', 'ADM2024038', '17'),
+           (gen_random_uuid(), 'Noah Campbell', 'ADM2024039', '18'),
+           (gen_random_uuid(), 'Scarlett Parker', 'ADM2024040', '19'),
+           (gen_random_uuid(), 'Mason Evans', 'ADM2024041', '20'),
+           (gen_random_uuid(), 'Grace Edwards', 'ADM2024042', '1'),
+           (gen_random_uuid(), 'Logan Collins', 'ADM2024043', '2'),
+           (gen_random_uuid(), 'Chloe Stewart', 'ADM2024044', '3'),
+           (gen_random_uuid(), 'Elijah Morris', 'ADM2024045', '4'),
+           (gen_random_uuid(), 'Victoria Rogers', 'ADM2024046', '5'),
+           (gen_random_uuid(), 'Aiden Reed', 'ADM2024047', '6'),
+           (gen_random_uuid(), 'Lily Cook', 'ADM2024048', '7'),
+           (gen_random_uuid(), 'Jackson Morgan', 'ADM2024049', '8'),
+           (gen_random_uuid(), 'Zoe Bell', 'ADM2024050', '9') ON CONFLICT (adm_no) DO NOTHING;
+
+
+    -- Insert 50 students with course allocations
+    INSERT INTO students.students (id, name, adm_no, course_id)
+    VALUES (gen_random_uuid(), 'James Anderson', 'ADM2024001', '1'),
+           (gen_random_uuid(), 'Emily Johnson', 'ADM2024002', '1'),
+           (gen_random_uuid(), 'Michael Chen', 'ADM2024003', '2'),
+           (gen_random_uuid(), 'Sarah Williams', 'ADM2024004', '3'),
+           (gen_random_uuid(), 'David Martinez', 'ADM2024005', '4'),
+           (gen_random_uuid(), 'Jessica Brown', 'ADM2024006', '5'),
+           (gen_random_uuid(), 'Daniel Garcia', 'ADM2024007', '6'),
+           (gen_random_uuid(), 'Emma Davis', 'ADM2024008', '7'),
+           (gen_random_uuid(), 'Christopher Rodriguez', 'ADM2024009', '8'),
+           (gen_random_uuid(), 'Olivia Wilson', 'ADM2024010', '9'),
+           (gen_random_uuid(), 'Matthew Moore', 'ADM2024011', '10'),
+           (gen_random_uuid(), 'Sophia Taylor', 'ADM2024012', '11'),
+           (gen_random_uuid(), 'Andrew Thomas', 'ADM2024013', '12'),
+           (gen_random_uuid(), 'Isabella Jackson', 'ADM2024014', '13'),
+           (gen_random_uuid(), 'Joshua White', 'ADM2024015', '14'),
+           (gen_random_uuid(), 'Ava Harris', 'ADM2024016', '15'),
+           (gen_random_uuid(), 'Ryan Martin', 'ADM2024017', '16'),
+           (gen_random_uuid(), 'Mia Thompson', 'ADM2024018', '17'),
+           (gen_random_uuid(), 'Ethan Lee', 'ADM2024019', '18'),
+           (gen_random_uuid(), 'Charlotte Walker', 'ADM2024020', '19'),
+           (gen_random_uuid(), 'Alexander Hall', 'ADM2024021', '20'),
+           (gen_random_uuid(), 'Amelia Allen', 'ADM2024022', '1'),
+           (gen_random_uuid(), 'Benjamin Young', 'ADM2024023', '2'),
+           (gen_random_uuid(), 'Harper King', 'ADM2024024', '3'),
+           (gen_random_uuid(), 'William Wright', 'ADM2024025', '4'),
+           (gen_random_uuid(), 'Evelyn Lopez', 'ADM2024026', '5'),
+           (gen_random_uuid(), 'Lucas Hill', 'ADM2024027', '6'),
+           (gen_random_uuid(), 'Abigail Scott', 'ADM2024028', '7'),
+           (gen_random_uuid(), 'Henry Green', 'ADM2024029', '8'),
+           (gen_random_uuid(), 'Emily Adams', 'ADM2024030', '9'),
+           (gen_random_uuid(), 'Sebastian Baker', 'ADM2024031', '10'),
+           (gen_random_uuid(), 'Elizabeth Nelson', 'ADM2024032', '11'),
+           (gen_random_uuid(), 'Jack Carter', 'ADM2024033', '12'),
+           (gen_random_uuid(), 'Sofia Mitchell', 'ADM2024034', '13'),
+           (gen_random_uuid(), 'Owen Perez', 'ADM2024035', '14'),
+           (gen_random_uuid(), 'Avery Roberts', 'ADM2024036', '15'),
+           (gen_random_uuid(), 'Liam Turner', 'ADM2024037', '16'),
+           (gen_random_uuid(), 'Ella Phillips', 'ADM2024038', '17'),
+           (gen_random_uuid(), 'Noah Campbell', 'ADM2024039', '18'),
+           (gen_random_uuid(), 'Scarlett Parker', 'ADM2024040', '19'),
+           (gen_random_uuid(), 'Mason Evans', 'ADM2024041', '20'),
+           (gen_random_uuid(), 'Grace Edwards', 'ADM2024042', '1'),
+           (gen_random_uuid(), 'Logan Collins', 'ADM2024043', '2'),
+           (gen_random_uuid(), 'Chloe Stewart', 'ADM2024044', '3'),
+           (gen_random_uuid(), 'Elijah Morris', 'ADM2024045', '4'),
+           (gen_random_uuid(), 'Victoria Rogers', 'ADM2024046', '5'),
+           (gen_random_uuid(), 'Aiden Reed', 'ADM2024047', '6'),
+           (gen_random_uuid(), 'Lily Cook', 'ADM2024048', '7'),
+           (gen_random_uuid(), 'Jackson Morgan', 'ADM2024049', '8'),
+           (gen_random_uuid(), 'Zoe Bell', 'ADM2024050', '9') ON CONFLICT (adm_no) DO NOTHING;

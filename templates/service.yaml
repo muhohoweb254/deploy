@@ -120,3 +120,23 @@ spec:
       protocol: TCP
   selector:
     app: rabbitmq
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: exam
+spec:
+  type: {{ .Values.exam.service.type }}
+  ports:
+    - port: {{ .Values.exam.service.port }}
+      targetPort: {{ .Values.exam.service.port }}
+      protocol: TCP
+      name: http
+
+    - port: 9090
+      targetPort: 9090
+      name: grpc
+      protocol: TCP
+
+  selector:
+    app: exam
