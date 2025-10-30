@@ -1,0 +1,411 @@
+#==============================================================================
+# PostgresSQL Database
+#==============================================================================
+namespace: school-app
+
+postgres:
+  replicaCount: 1
+  image:
+    repository: postgres
+    pullPolicy: IfNotPresent
+    tag: "15-alpine"
+  service:
+    type: ClusterIP
+    port: 5432
+  postgresDbPass: "postgres123"
+
+  env:
+    - name: PGPASSWORD
+      value: "postgres123"
+    - name: POSTGRES_USER
+      value: "postgres"
+    - name: POSTGRES_PASSWORD
+      value: "postgres123"
+    - name: POSTGRES_DB
+      value: "schooldb"
+    - name: PGDATA
+      value: "/var/lib/postgresql/data/pgdata"
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+  pv:
+    name: postgres-pv
+    storage: 10Gi
+    storageClass: standard
+    hostPath: /data/postgres
+
+  pvc:
+    name: postgres-pvc
+    storage: 10Gi
+    storageClass: standard
+
+
+#==============================================================================
+# Keycloak Service
+#==============================================================================
+keycloak:
+  replicaCount: 1
+  image:
+    repository: muhohoweb/keycloak
+    pullPolicy: IfNotPresent
+    tag: "1.0.2"
+  service:
+    type: ClusterIP
+    port: 8080
+    managementPort: 9000
+  env:
+    - name: KEYCLOAK_ADMIN
+      value: "admin"
+    - name: KEYCLOAK_ADMIN_PASSWORD
+      value: "admin"
+    - name: KC_HOSTNAME_URL
+      value: "http://localhost/keycloak/auth"
+    - name: KC_HOSTNAME_ADMIN_URL
+      value: "http://localhost/keycloak/auth/"
+    - name: KC_DB
+      value: "postgres"
+    - name: KC_DB_PASSWORD
+      value: "postgres123"
+    - name: KC_DB_URL
+      value: "jdbc:postgresql://postgres:5432/schooldb?currentSchema=keycloak"
+    - name: KC_DB_USERNAME
+      value: "postgres"
+    - name: KC_HEALTH_ENABLED
+      value: "true"
+    - name: KC_METRICS_ENABLED
+      value: "true"
+    - name: KC_LOG_LEVEL
+      value: "DEBUG"
+    - name: KC_PROXY
+      value: "edge"
+    - name: KC_HTTP_RELATIVE_PATH
+      value: "/auth"
+    - name: KC_HTTP_ENABLED
+      value: "true"
+    - name: KEY_CLOAK_REALM
+      value: "school"
+    - name: KC_HOSTNAME_STRICT
+      value: "false"
+    - name: KC_HOSTNAME_STRICT_BACKCHANNEL
+      value: "false"
+    - name: KEYCLOAK_IMPORT
+      value: "/opt/keycloak/data/import/realm.json"
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 1000m
+      memory: 1Gi
+
+
+
+
+#==============================================================================
+# Students Service
+#==============================================================================
+students:
+  replicaCount: 1
+  image:
+    repository: muhohoweb/school-app-students
+    pullPolicy: IfNotPresent
+    tag: "3.9.9"
+  service:
+    type: ClusterIP
+    port: 8080
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+  env:
+    - name: COURSE_URL
+      value: "http://course"
+    - name: KEY_CLOAK_USERNAME
+      value: "app-user"
+    - name: KEY_CLOAK_PASSWORD
+      value: "postgres123"
+    - name: KEY_CLOAK_ISSUER_URI
+      value: "http://keycloak:8080/auth/realms/school"
+    - name: KEY_CLOAK_JWK_SET_URI
+      value: "http://keycloak:8080/auth/realms/school/protocol/openid-connect/certs"
+    - name: DB_PASSWORD
+      value: "postgres123"
+    - name: DB_USERNAME
+      value: "postgres"
+    - name: DB_URL
+      value: "jdbc:postgresql://postgres:5432/schooldb?currentSchema=students"
+    - name: AWS_ACCESS_KEY_ID
+      value: "dummy-access-key"
+    - name: AWS_SECRET_ACCESS_KEY
+      value: "dummy-secret-key"
+    - name: AWS_REGION
+      value: "us-east-1"
+    - name: AWS_SQS_URL
+      value: "AWS_SQS_URL"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+
+#==============================================================================
+# Library Service
+#==============================================================================
+library:
+  replicaCount: 1
+  image:
+    repository: school-app-library
+    pullPolicy: IfNotPresent
+    tag: "4.0.3"
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 75
+    targetMemoryUtilizationPercentage: 80
+  service:
+    type: ClusterIP
+    port: 8080
+  env:
+    - name: DOCKER_IMAGE_NAME
+      value: "4.0.3"
+    - name: STUDENTS_URL
+      value: "http://students:8080/api"
+    - name: KEY_CLOAK_USERNAME
+      value: "appuser@gmail.com"
+    - name: KEY_CLOAK_CLIENT_ID
+      value: "students-service"
+    - name: KEY_CLOAK_PASSWORD
+      value: "postgres123"
+    - name: KEY_CLOAK_ISSUER_URI
+      value: "http://keycloak:8080/auth/realms/school"
+    - name: DB_PASSWORD
+      value: "postgres123"
+    - name: DB_USERNAME
+      value: "postgres"
+    - name: DB_URL
+      value: "jdbc:postgresql://postgres:5432/schooldb?currentSchema=library"
+    - name: CORS_ALLOWED_ORIGINS
+      value: "http://localhost"
+    - name: AWS_ACCESS_KEY_ID
+      value: "dummy-access-key"
+    - name: AWS_SECRET_ACCESS_KEY
+      value: "dummy-secret-key"
+    - name: AWS_JAVA_V1_DISABLE_DEPRECATION_ANNOUNCEMENT
+      value: "true"
+    - name: AWS_SQS_URL
+      value: "https://sqs.us-east-1.amazonaws.com/975049979529/sqs_queue"
+    - name: GRPC_CLIENT_STUDENTS_SERVICE_ADDRESS
+      value: "static://students:9090"
+    - name: SPRING_PROFILES_ACTIVE
+      value: "prod"
+    - name: RABBIT_MQ_PORT
+      value: "5672"
+    - name: RABBIT_MQ_USERNAME
+      value: "admin"
+    - name: RABBIT_MQ_PASSWORD
+      value: "admin123"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+
+#==============================================================================
+# API Gateway
+#==============================================================================
+apigateway:
+  replicaCount: 1
+  image:
+    repository: muhohoweb/apigateway
+    pullPolicy: IfNotPresent
+    tag: "1.0.2"
+  service:
+    type: ClusterIP
+    port: 8080
+  env:
+    - name: LIBRARY_SERVICE_URL
+      value: "http://library:8080"
+    - name: STUDENTS_SERVICE_URL
+      value: "http://students:8080"
+    - name: COURSE_SERVICE_URL
+      value: "http://course:8080"
+    - name: EXAM_SERVICE_URL
+      value: "http://exam:8080"
+    - name: AUTH_SERVICE_URL
+      value: "http://keycloak:8080"
+    - name: COURSE_URL
+      value: "http://course:8080"
+
+    - name: KEY_CLOAK_USERNAME
+      value: "app-user"
+    - name: KEY_CLOAK_ISSUER_URI
+      value: "http://keycloak:8080/keycloak/auth/realms/school"
+    - name: KEY_CLOAK_PASSWORD
+      value: "postgres123"
+
+    - name: CORS_ALLOWED_ORIGINS
+      value: "http://localhost"
+    - name: AWS_JAVA_V1_DISABLE_DEPRECATION_ANNOUNCEMENT
+      value: "true"
+    - name: AWS_SQS_URL
+      value: "https://sqs.us-east-1.amazonaws.com/975049979529/sqs_queue"
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+#==============================================================================
+# Course Service
+#==============================================================================
+course:
+  replicaCount: 3
+  image:
+    repository: muhohoweb/course-service
+    pullPolicy: IfNotPresent
+    tag: "1.0.0"
+  service:
+    type: ClusterIP
+    port: 8080
+  env:
+    - name: DOCKER_IMAGE_NAME
+      value: "3.3.3"
+    - name: STUDENTS_URL
+      value: "http://students:8080/api"
+    - name: KEY_CLOAK_USERNAME
+      value: "appuser@gmail.com"
+    - name: KEY_CLOAK_CLIENT_ID
+      value: "students-service"
+    - name: KEY_CLOAK_PASSWORD
+      value: "postgres123"
+    - name: KEY_CLOAK_ISSUER_URI
+      value: "http://keycloak:8080/auth/realms/school"
+    - name: DB_PASSWORD
+      value: "postgres123"
+    - name: DB_USERNAME
+      value: "postgres"
+    - name: DB_URL
+      value: "jdbc:postgresql://postgres:5432/schooldb?currentSchema=library"
+    - name: CORS_ALLOWED_ORIGINS
+      value: "http://localhost"
+    - name: AWS_ACCESS_KEY_ID
+      value: "dummy-access-key"
+    - name: AWS_SECRET_ACCESS_KEY
+      value: "dummy-secret-key"
+    - name: AWS_JAVA_V1_DISABLE_DEPRECATION_ANNOUNCEMENT
+      value: "true"
+    - name: AWS_SQS_URL
+      value: "https://sqs.us-east-1.amazonaws.com/975049979529/sqs_queue"
+    - name: GRPC_CLIENT_STUDENTS_SERVICE_ADDRESS
+      value: "static://students:9090"
+    - name: SPRING_PROFILES_ACTIVE
+      value: "prod"
+    - name: RABBIT_MQ_PORT
+      value: "5672"
+    - name: RABBIT_MQ_USERNAME
+      value: "guest"
+    - name: RABBIT_MQ_PASSWORD
+      value: "guest"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+
+
+
+#==============================================================================
+# Rabbit MQ
+#==============================================================================
+rabbitmq:
+  replicaCount: 1
+
+  image:
+    repository: rabbitmq
+    tag: "3.12-management"
+    pullPolicy: IfNotPresent
+
+  auth:
+    username: admin
+    password: admin123
+    vhost: /
+
+  service:
+    type: ClusterIP
+    # Use NodePort or LoadBalancer if you need external access
+
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: ""  # Leave empty for default storage class
+
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+
+
+#==============================================================================
+# Auto Scaling Configuration
+#==============================================================================
+
+# Postgres - No autoscaling (database)
+#postgres:
+#  autoscaling:
+#    enabled: false
+
+# Keycloak - No autoscaling (auth service)
+#keycloak:
+#  autoscaling:
+#    enabled: false
+#
+#
+## API Gateway
+#apigateway:
+#  autoscaling:
+#    enabled: true
+#    minReplicas: 2
+#    maxReplicas: 15
+#    targetCPUUtilizationPercentage: 70
+#    targetMemoryUtilizationPercentage: 75
+
+# Course Service
+#course:
+#  autoscaling:
+#    enabled: true
+#    minReplicas: 2
+#    maxReplicas: 8
+#    targetCPUUtilizationPercentage: 80
+#    targetMemoryUtilizationPercentage: 80
+#
+## Exam Service
+#exam:
+#  autoscaling:
+#    enabled: true
+#    minReplicas: 2
+#    maxReplicas: 8
+#    targetCPUUtilizationPercentage: 80
+  #    targetMemoryUtilizationPercentage: 80
