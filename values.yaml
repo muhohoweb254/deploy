@@ -114,7 +114,7 @@ students:
   image:
     repository: muhohoweb/school-app-students
     pullPolicy: IfNotPresent
-    tag: "3.9.9"
+    tag: "4.0.5"
   service:
     type: ClusterIP
     port: 8080
@@ -232,7 +232,7 @@ apigateway:
   image:
     repository: muhohoweb/apigateway
     pullPolicy: IfNotPresent
-    tag: "1.0.2"
+    tag: "1.0.6"
   service:
     type: ClusterIP
     port: 8080
@@ -331,6 +331,66 @@ course:
       memory: 256Mi
 
 
+#==============================================================================
+# Exam Service
+#==============================================================================
+exam:
+  replicaCount: 3
+  image:
+    repository: muhohoweb/exam-service
+    pullPolicy: IfNotPresent
+    tag: "1.0.0"
+  service:
+    type: ClusterIP
+    port: 8080
+  env:
+    - name: DOCKER_IMAGE_NAME
+      value: "3.3.3"
+    - name: STUDENTS_URL
+      value: "http://students:8080/api"
+    - name: KEY_CLOAK_USERNAME
+      value: "appuser@gmail.com"
+    - name: KEY_CLOAK_CLIENT_ID
+      value: "students-service"
+    - name: KEY_CLOAK_PASSWORD
+      value: "postgres123"
+    - name: KEY_CLOAK_ISSUER_URI
+      value: "http://keycloak:8080/auth/realms/school"
+    - name: DB_PASSWORD
+      value: "postgres123"
+    - name: DB_USERNAME
+      value: "postgres"
+    - name: DB_URL
+      value: "jdbc:postgresql://postgres:5432/schooldb?currentSchema=library"
+    - name: CORS_ALLOWED_ORIGINS
+      value: "http://localhost"
+    - name: AWS_ACCESS_KEY_ID
+      value: "dummy-access-key"
+    - name: AWS_SECRET_ACCESS_KEY
+      value: "dummy-secret-key"
+    - name: AWS_JAVA_V1_DISABLE_DEPRECATION_ANNOUNCEMENT
+      value: "true"
+    - name: AWS_SQS_URL
+      value: "https://sqs.us-east-1.amazonaws.com/975049979529/sqs_queue"
+    - name: GRPC_CLIENT_STUDENTS_SERVICE_ADDRESS
+      value: "static://students:9090"
+    - name: SPRING_PROFILES_ACTIVE
+      value: "prod"
+    - name: RABBIT_MQ_PORT
+      value: "5672"
+    - name: RABBIT_MQ_USERNAME
+      value: "guest"
+    - name: RABBIT_MQ_PASSWORD
+      value: "guest"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+
 
 
 #==============================================================================
@@ -366,46 +426,16 @@ rabbitmq:
       memory: "512Mi"
       cpu: "500m"
 
-
-
 #==============================================================================
-# Auto Scaling Configuration
+# Service Discovery
 #==============================================================================
 
-# Postgres - No autoscaling (database)
-#postgres:
-#  autoscaling:
-#    enabled: false
-
-# Keycloak - No autoscaling (auth service)
-#keycloak:
-#  autoscaling:
-#    enabled: false
-#
-#
-## API Gateway
-#apigateway:
-#  autoscaling:
-#    enabled: true
-#    minReplicas: 2
-#    maxReplicas: 15
-#    targetCPUUtilizationPercentage: 70
-#    targetMemoryUtilizationPercentage: 75
-
-# Course Service
-#course:
-#  autoscaling:
-#    enabled: true
-#    minReplicas: 2
-#    maxReplicas: 8
-#    targetCPUUtilizationPercentage: 80
-#    targetMemoryUtilizationPercentage: 80
-#
-## Exam Service
-#exam:
-#  autoscaling:
-#    enabled: true
-#    minReplicas: 2
-#    maxReplicas: 8
-#    targetCPUUtilizationPercentage: 80
-  #    targetMemoryUtilizationPercentage: 80
+servicediscovery:
+  replicaCount: 1
+  image:
+    repository: muhohoweb/service-dicovery
+    pullPolicy: IfNotPresent
+    tag: "1.0.0"
+  service:
+    type: ClusterIP
+    port: 8761

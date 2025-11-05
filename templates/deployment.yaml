@@ -410,6 +410,31 @@ spec:
           resources:
             {{ toYaml .Values.exam.resources | nindent 12 }}
 ---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: servicediscovery
+spec:
+  replicas: {{ .Values.servicediscovery.replicaCount }}
+  selector:
+    matchLabels:
+      app: servicediscovery
+  template:
+    metadata:
+      labels:
+        app: servicediscovery
+    spec:
+      containers:
+        - name: servicediscovery
+          image: "{{ .Values.servicediscovery.image.repository }}:{{ .Values.exam.image.tag }}"
+          imagePullPolicy: {{ .Values.servicediscovery.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{.Values.servicediscovery.service.port}}
+              protocol: TCP
+
+
 ---
 {{/*apiVersion: apps/v1*/}}
 {{/*kind: Deployment*/}}

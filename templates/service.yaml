@@ -140,3 +140,18 @@ spec:
 
   selector:
     app: exam
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: servicediscovery
+spec:
+  type: {{ .Values.servicediscovery.service.type }}
+  ports:
+    - port: {{ .Values.servicediscovery.service.port }}
+      targetPort: {{ .Values.servicediscovery.service.port }}
+      protocol: TCP
+      name: http
+
+  selector:
+    app: servicediscovery
